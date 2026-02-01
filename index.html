@@ -1,182 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
-<meta charset="UTF-8">
-<title>Student Tracker</title>
+<meta charset="UTF-8" />
+<title>Uczeń – Tematy</title>
 
 <style>
-:root{
-  --pink:#ff006b;
-  --bg:#191919;
-  --card:#1e1e1e;
+body {
+    background:#0f1117;
+    font-family: system-ui, -apple-system, sans-serif;
 }
 
-body{
-  margin:0;
-  background:var(--bg);
-  font-family:Inter,system-ui,sans-serif;
-  color:white;
+/* === KARTA === */
+.widget {
+    width:320px;
+    background:#1a1d24;
+    border-radius:22px;
+    padding:22px;
+    color:white;
+    box-shadow:0 10px 30px rgba(0,0,0,0.35);
 }
 
-.widget{
-  max-width:420px;
-  margin:20px auto;
-  background:var(--card);
-  border-radius:18px;
-  padding:16px;
+/* === IMIĘ I NAZWISKO === */
+.student-name {
+    color:#ff006b;
+    font-size:20px;
+    font-weight:700;
+    margin-bottom:18px;
+    text-align:left;
 }
 
-/* STUDENT NAME */
-
-.student-name{
-  width:100%;
-  background:#111;
-  border:1px solid #333;
-  border-radius:10px;
-  padding:10px;
-  color:white;
-  font-size:16px;
-  margin-bottom:14px;
+/* === LISTA TEMATÓW === */
+.task {
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:14px;
 }
 
-.student-name:focus{
-  outline:none;
-  border-color:var(--pink);
+/* === KWADRACIK === */
+.checkbox {
+    width:18px;
+    height:18px;
+    border:2px solid #ff006b;
+    border-radius:5px;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:0.2s;
 }
 
-/* TASKS */
-
-.topic{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:10px;
+.checkbox.checked {
+    background:#ff006b;
 }
 
-.checkbox{
-  width:18px;
-  height:18px;
-  border:2px solid var(--pink);
-  border-radius:5px;
-  cursor:pointer;
-  flex-shrink:0;
+/* === TEKST TEMATU === */
+.task-text {
+    flex:1;
+    word-break: break-word;
+    line-height:1.35;
 }
 
-.checkbox.checked{
-  background:var(--pink);
-}
-
-.topic input{
-  background:none;
-  border:none;
-  color:white;
-  font-size:14px;
-  width:100%;
-  line-height:1.4;
-  white-space:pre-wrap;
-  word-break:break-word;
-}
-
-.topic input:focus{
-  outline:none;
-}
-
-.topic.done input{
-  text-decoration:line-through;
-  text-decoration-color:var(--pink);
-}
-
-/* ADD BUTTON */
-
-.add-topic{
-  color:#777;
-  font-size:13px;
-  cursor:pointer;
-  margin-top:6px;
-}
-
-.add-topic:hover{
-  color:var(--pink);
+.task-text.checked {
+    text-decoration: line-through;
+    text-decoration-color:#ff006b;
 }
 </style>
 </head>
+
 
 <body>
 
 <div class="widget">
 
-<input
-  class="student-name"
-  id="studentName"
-  placeholder="Student name..."
-/>
+    <!-- ✏️ TUTAJ WPISUJESZ UCZNIA -->
+    <div class="student-name">
+        Kamila Olszewska
+    </div>
 
-<div id="topics"></div>
+    <!-- TEMATY -->
+    <div class="task">
+        <div class="checkbox"></div>
+        <div class="task-text">Present Simple vs Present Continuous</div>
+    </div>
 
-<div class="add-topic" onclick="addTopic()">+ add topic</div>
+    <div class="task">
+        <div class="checkbox"></div>
+        <div class="task-text">Vocabulary – Travel and Holidays</div>
+    </div>
+
+    <div class="task">
+        <div class="checkbox"></div>
+        <div class="task-text">Listening practice – Everyday conversations</div>
+    </div>
 
 </div>
 
+
 <script>
-const STORAGE_KEY="student-tracker";
+document.querySelectorAll(".task").forEach(task => {
+    const checkbox = task.querySelector(".checkbox");
+    const text = task.querySelector(".task-text");
 
-function save(){
-  const data={
-    name:document.getElementById("studentName").value,
-    topics:[...document.querySelectorAll(".topic")].map(t=>({
-      text:t.querySelector("input").value,
-      checked:t.querySelector(".checkbox").classList.contains("checked")
-    }))
-  };
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
-}
-
-function load(){
-  return JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
-}
-
-function addTopic(data={}){
-  const container=document.getElementById("topics");
-
-  const topic=document.createElement("div");
-  topic.className="topic";
-
-  const cb=document.createElement("div");
-  cb.className="checkbox"+(data.checked?" checked":"");
-
-  const input=document.createElement("input");
-  input.value=data.text||"";
-  input.placeholder="Topic...";
-
-  if(data.checked) topic.classList.add("done");
-
-  cb.onclick=()=>{
-    cb.classList.toggle("checked");
-    topic.classList.toggle("done");
-    save();
-  };
-
-  input.oninput=save;
-
-  topic.append(cb,input);
-  container.appendChild(topic);
-}
-
-function init(){
-  const data=load();
-
-  if(data.name){
-    document.getElementById("studentName").value=data.name;
-  }
-
-  if(data.topics){
-    data.topics.forEach(addTopic);
-  }
-
-  document.getElementById("studentName").oninput=save;
-}
-
-init();
+    checkbox.addEventListener("click", () => {
+        checkbox.classList.toggle("checked");
+        text.classList.toggle("checked");
+    });
+});
 </script>
 
 </body>
