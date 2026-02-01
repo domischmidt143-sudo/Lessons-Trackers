@@ -5,13 +5,13 @@
 <title>Uczeń – Tematy</title>
 
 <style>
-body {
+body{
     background:#0f1117;
     font-family: system-ui, -apple-system, sans-serif;
 }
 
 /* === KARTA === */
-.widget {
+.widget{
     width:320px;
     background:#1a1d24;
     border-radius:22px;
@@ -20,48 +20,74 @@ body {
     box-shadow:0 10px 30px rgba(0,0,0,0.35);
 }
 
-/* === IMIĘ I NAZWISKO === */
-.student-name {
+/* === IMIĘ UCZNIA === */
+.student-name{
     color:#ff006b;
     font-size:20px;
     font-weight:700;
     margin-bottom:18px;
-    text-align:left;
 }
 
 /* === LISTA TEMATÓW === */
-.task {
+.tasks{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+/* === POJEDYNCZY TEMAT === */
+.task{
     display:flex;
     align-items:center;
     gap:12px;
-    margin-bottom:14px;
 }
 
-/* === KWADRACIK === */
-.checkbox {
+/* === CHECKBOX === */
+.checkbox{
     width:18px;
     height:18px;
     border:2px solid #ff006b;
     border-radius:5px;
     cursor:pointer;
     flex-shrink:0;
-    transition:0.2s;
 }
 
-.checkbox.checked {
+.checkbox.checked{
     background:#ff006b;
 }
 
-/* === TEKST TEMATU === */
-.task-text {
+/* === TEKST === */
+.task-text{
     flex:1;
     word-break: break-word;
     line-height:1.35;
 }
 
-.task-text.checked {
+.task-text.checked{
     text-decoration: line-through;
     text-decoration-color:#ff006b;
+}
+
+/* === USUWANIE === */
+.delete{
+    opacity:0.5;
+    cursor:pointer;
+    font-size:14px;
+}
+
+.delete:hover{
+    opacity:1;
+}
+
+/* === ADD BUTTON === */
+.add-task{
+    margin-top:12px;
+    opacity:0.6;
+    cursor:pointer;
+}
+
+.add-task:hover{
+    opacity:1;
 }
 </style>
 </head>
@@ -71,40 +97,89 @@ body {
 
 <div class="widget">
 
-    <!-- ✏️ TUTAJ WPISUJESZ UCZNIA -->
+    <!-- ✏️ TU WPISUJESZ UCZNIA -->
     <div class="student-name">
         Kamila Olszewska
     </div>
 
-    <!-- TEMATY -->
-    <div class="task">
-        <div class="checkbox"></div>
-        <div class="task-text">Present Simple vs Present Continuous</div>
-    </div>
+    <div class="tasks" id="tasks"></div>
 
-    <div class="task">
-        <div class="checkbox"></div>
-        <div class="task-text">Vocabulary – Travel and Holidays</div>
-    </div>
-
-    <div class="task">
-        <div class="checkbox"></div>
-        <div class="task-text">Listening practice – Everyday conversations</div>
+    <div class="add-task" id="addTask">
+        + add topic
     </div>
 
 </div>
 
 
 <script>
-document.querySelectorAll(".task").forEach(task => {
-    const checkbox = task.querySelector(".checkbox");
-    const text = task.querySelector(".task-text");
+const STORAGE_KEY = "student_topics_v1";
 
-    checkbox.addEventListener("click", () => {
+const tasksContainer = document.getElementById("tasks");
+const addBtn = document.getElementById("addTask");
+
+/* === SAVE === */
+function save(){
+    const data = [...document.querySelectorAll(".task")].map(task => ({
+        text: task.querySelector(".task-text").textContent,
+        checked: task.querySelector(".checkbox").classList.contains("checked")
+    }));
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+/* === LOAD === */
+function load(){
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+}
+
+/* === CREATE TASK === */
+function createTask(text, checked=false){
+
+    const task = document.createElement("div");
+    task.className = "task";
+
+    const checkbox = document.createElement("div");
+    checkbox.className = "checkbox";
+    if(checked) checkbox.classList.add("checked");
+
+    const taskText = document.createElement("div");
+    taskText.className = "task-text";
+    taskText.textContent = text;
+    if(checked) taskText.classList.add("checked");
+
+    const del = document.createElement("div");
+    del.className = "delete";
+    del.textContent = "✕";
+
+    checkbox.onclick = () => {
         checkbox.classList.toggle("checked");
-        text.classList.toggle("checked");
-    });
+        taskText.classList.toggle("checked");
+        save();
+    };
+
+    del.onclick = () => {
+        task.remove();
+        save();
+    };
+
+    task.append(checkbox, taskText, del);
+    tasksContainer.appendChild(task);
+}
+
+/* === ADD BUTTON === */
+addBtn.addEventListener("click", () => {
+    const text = prompt("Wpisz temat:");
+    if(!text) return;
+    createTask(text);
+    save();
 });
+
+/* === INIT === */
+function init(){
+    load().forEach(t => createTask(t.text, t.checked));
+}
+
+init();
 </script>
 
 </body>
