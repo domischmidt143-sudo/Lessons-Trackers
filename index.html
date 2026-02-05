@@ -1,229 +1,207 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
-<title>Student Topics Widget</title>
+<meta charset="UTF-8" />
+<title>Korepetycje Widget</title>
 
 <style>
 body {
-    background: #191919;
-    font-family: Inter, sans-serif;
-    display: flex;
-    justify-content: center;
-    padding: 40px;
-    color: white;
+  margin: 0;
+  background: #191919;
+  font-family: system-ui, -apple-system, sans-serif;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
 }
 
-.widget {
-    width: 420px;
-}
-
+/* ===== KARTA ===== */
 .card {
-    background: #000000;
-    border-radius: 18px;
-    padding: 20px;
-    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+  width: 320px;
+  background: #1f1f1f;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 0 25px rgba(0,0,0,0.4);
 }
 
+/* ===== IMIĘ UCZNIA ===== */
 .student-name {
-    color: #ff006b;
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 18px;
-    text-align: left;
+  color: #ff006b;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  outline: none;
 }
 
-.topic-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.student-name:empty:before {
+  content: "Imię i nazwisko ucznia";
+  opacity: 0.5;
 }
 
+/* ===== LISTA TEMATÓW ===== */
 .topic {
-    display: grid;
-    grid-template-columns: 24px 1fr 24px;
-    gap: 12px;
-    align-items: center;
+  display: grid;
+  grid-template-columns: 26px 1fr 20px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
 }
 
-.topic input[type="checkbox"] {
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border: 2px solid #ff006b;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.topic input[type="checkbox"]:checked {
-    background: #ff006b;
-}
-
-.topic span {
-    word-break: break-word;
-    line-height: 1.4;
-    display: flex;
-    align-items: center;
-}
-
-.topic.done span {
-    text-decoration: line-through;
-    text-decoration-color: #ff006b;
-    text-decoration-thickness: 2px;
-    opacity: 0.7;
-}
-
-/* ===== KOSZ ===== */
-.delete-btn {
-  opacity: 0;
+/* CHECKBOX */
+.checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ff006b;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 16px;
-  text-align: center;
+  transition: 0.2s;
+}
+
+.checkbox.checked {
+  background: #ff006b;
+}
+
+/* TEKST */
+.topic-text {
+  color: #e6e6e6;
+  word-break: break-word;
+}
+
+.topic-text.done {
+  text-decoration: line-through;
+  text-decoration-color: #ff006b;
+}
+
+/* DELETE X */
+.delete-btn {
+  color: #ff006b;
+  font-size: 14px;
+  cursor: pointer;
+  opacity: 0;
   transition: 0.2s;
   user-select: none;
-  color: #ff006b;
 }
 
 .topic:hover .delete-btn {
-    opacity: 0.8;
+  opacity: 0.8;
 }
 
 .delete-btn:hover {
-    opacity: 1;
-    transform: scale(1.2);
+  opacity: 1;
+  transform: scale(1.2);
 }
 
-/* ===== DODAWANIE ===== */
-.add-row {
-    display: grid;
-    grid-template-columns: 1fr 40px;
-    gap: 10px;
-    margin-top: 18px;
+/* ADD BUTTON */
+.add-topic {
+  margin-top: 10px;
+  color: #888;
+  cursor: pointer;
 }
 
-.add-input {
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 10px;
-    padding: 10px;
-    color: white;
-    outline: none;
-}
-
-.add-input::placeholder {
-    color: #666;
-}
-
-.add-btn {
-    background: #ff006b;
-    border: none;
-    color: black;
-    font-weight: bold;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 20px;
+.add-topic:hover {
+  color: #ff006b;
 }
 </style>
 </head>
 
 <body>
 
-<div class="widget">
-    <div class="card">
+<div class="card">
 
-        <!-- TU WPISUJESZ UCZNIA -->
-        <div class="student-name" contenteditable="true">
-         Imię i nazwisko ucznia
-        </div>
+  <div class="student-name" contenteditable="true" id="studentName"></div>
 
-        <div class="topic-list" id="topicList"></div>
+  <div id="topicList"></div>
 
-        <div class="add-row">
-            <input 
-                class="add-input"
-                id="topicInput"
-                placeholder="Add topic..."
-            >
-            <button class="add-btn" id="addTopicBtn">+</button>
-        </div>
+  <div class="add-topic" id="addTopic">+ add topic</div>
 
-    </div>
 </div>
 
 <script>
 const topicList = document.getElementById("topicList");
-const addBtn = document.getElementById("addTopicBtn");
-const input = document.getElementById("topicInput");
+const addBtn = document.getElementById("addTopic");
+const studentName = document.getElementById("studentName");
 
-const STORAGE_KEY = "student_topics_widget";
-
-let topics = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-
-function saveTopics() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(topics));
+/* ===== LOCAL STORAGE ===== */
+function saveData() {
+  const data = {
+    name: studentName.innerText,
+    topics
+  };
+  localStorage.setItem("tutoringWidgetData", JSON.stringify(data));
 }
+
+function loadData() {
+  const data = JSON.parse(localStorage.getItem("tutoringWidgetData"));
+  if (data) {
+    studentName.innerText = data.name || "";
+    topics = data.topics || [];
+  }
+}
+
+/* ===== TEMATY ===== */
+let topics = [];
 
 function renderTopics() {
-    topicList.innerHTML = "";
+  topicList.innerHTML = "";
 
-    topics.forEach((topic, index) => {
+  topics.forEach((t, index) => {
+    const div = document.createElement("div");
+    div.className = "topic";
 
-        const div = document.createElement("div");
-        div.className = "topic";
-        if (topic.done) div.classList.add("done");
+    /* CHECKBOX */
+    const checkbox = document.createElement("div");
+    checkbox.className = "checkbox";
+    if (t.done) checkbox.classList.add("checked");
 
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.checked = topic.done;
+    checkbox.onclick = () => {
+      topics[index].done = !topics[index].done;
+      saveData();
+      renderTopics();
+    };
 
-        checkbox.addEventListener("change", () => {
-            topics[index].done = checkbox.checked;
-            saveTopics();
-            renderTopics();
-        });
+    /* TEKST */
+    const span = document.createElement("div");
+    span.className = "topic-text";
+    if (t.done) span.classList.add("done");
+    span.textContent = t.text;
 
-        const span = document.createElement("span");
-        span.textContent = topic.text;
+    /* DELETE */
+    const del = document.createElement("div");
+    del.className = "delete-btn";
+    del.textContent = "✕";
 
-        /* ===== KOSZ ===== */
-        const deleteBtn = document.createElement("div");
-        deleteBtn.className = "delete-btn";
-        deleteBtn.textContent = "x";
+    del.onclick = () => {
+      topics.splice(index, 1);
+      saveData();
+      renderTopics();
+    };
 
-        deleteBtn.addEventListener("click", () => {
-            topics.splice(index, 1);
-            saveTopics();
-            renderTopics();
-        });
+    div.appendChild(checkbox);
+    div.appendChild(span);
+    div.appendChild(del);
 
-        div.appendChild(checkbox);
-        div.appendChild(span);
-        div.appendChild(deleteBtn);
-
-        topicList.appendChild(div);
-    });
+    topicList.appendChild(div);
+  });
 }
 
-function addTopic() {
-    const text = input.value.trim();
-    if (!text) return;
+/* ===== DODAWANIE TEMATU ===== */
+addBtn.onclick = () => {
+  const text = prompt("Nowy temat:");
+  if (!text) return;
 
-    topics.push({
-        text: text,
-        done: false
-    });
+  topics.push({
+    text,
+    done: false
+  });
 
-    input.value = "";
-    saveTopics();
-    renderTopics();
-}
+  saveData();
+  renderTopics();
+};
 
-addBtn.addEventListener("click", addTopic);
+/* ===== EDYCJA IMIENIA ===== */
+studentName.addEventListener("input", saveData);
 
-input.addEventListener("keypress", e => {
-    if (e.key === "Enter") addTopic();
-});
-
+/* ===== START ===== */
+loadData();
 renderTopics();
 </script>
 
