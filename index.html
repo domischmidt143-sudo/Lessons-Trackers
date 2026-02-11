@@ -126,17 +126,17 @@ const studentName = document.getElementById("studentName");
 
 let topics = [];
 
-/* ===== STABILNE ID INSTANCJI ===== */
-let instanceId = localStorage.getItem("widgetInstanceId");
+/* ===== INSTANCJA WIDGETU (OSOBNA NA EMBED) ===== */
+let instanceId = sessionStorage.getItem("widgetInstanceId");
 
 if (!instanceId) {
   instanceId = crypto.randomUUID();
-  localStorage.setItem("widgetInstanceId", instanceId);
+  sessionStorage.setItem("widgetInstanceId", instanceId);
 }
 
 const STORAGE_KEY = "tutoringWidgetData_" + instanceId;
 
-/* ===== LOCAL STORAGE ===== */
+/* ===== LOCAL STORAGE DANYCH ===== */
 function saveData() {
   const data = {
     name: studentName.innerText,
